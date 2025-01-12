@@ -1,0 +1,3 @@
+execute brew install koekeishiya/formulae/skhd
+execute skhd --install-service
+execute skhd --start-service

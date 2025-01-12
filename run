@@ -1,0 +1,47 @@
+#! /usr/bin/env bash
+
+export SCRIPTDIR=$(cd $(dirname "${BASH_SOURCE[0]}") && pwd)
+export CONFIGDIR="$HOME/.config"
+
+export DRY_RUN="0"
+filter=""
+
+while [[ $# > 0 ]]; do
+  if [[ $1 == "--dry" ]]; then
+    DRY_RUN="1"
+  else
+    filter="$1"
+  fi
+  shift
+done
+
+log() {
+  if [[ $DRY_RUN == "1" ]]; then
+    echo "[DRY_RUN]: $@"
+  else
+    echo "$@"
+  fi
+}
+export -f log
+
+execute() {
+  log "execute $@"
+  if [[ $DRY_RUN == "1" ]]; then
+    return
+  fi
+  "$@"
+}
+export -f execute
+
+log "$SCRIPTDIR -- $filter"
+cd $SCRIPTDIR
+ 
+srcipts=$(find ./runs -maxdepth 1 -mindepth 1 -type f)
+
+for s in $srcipts; do
+  if echo "$s" | grep -qv "$filter"; then
+    log "filtering $srcipts"
+    continue
+  fi
+  "$s"
+done;

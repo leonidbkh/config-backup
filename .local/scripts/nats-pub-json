@@ -1,0 +1,75 @@
+#!/usr/bin/env bash
+
+local config_file="$HOME/.nats_pub_json_config"
+local subjects_file="$HOME/.nats_pub_json_subjects"
+local last_subject=""
+local last_file=""
+
+# Загрузка последних использованных значений
+if [[ -f "$config_file" ]]; then
+    last_subject=$(sed -n '1p' "$config_file")
+    last_file=$(sed -n '2p' "$config_file")
+fi
+
+# Загрузка сохраненных тем
+if [[ ! -f "$subjects_file" ]]; then
+    echo "trading.internal.jobs.recommended-price.123" > "$subjects_file"
+    echo "trading.internal.jobs.another-subject" >> "$subjects_file"
+    echo "trading.external.jobs.some-subject" >> "$subjects_file"
+fi
+
+local subjects=($(cat "$subjects_file"))
+
+# Добавляем опцию для создания новой темы
+subjects+=("+ Add new subject")
+
+# Добавляем последний использованный субъект в начало списка, если он существует
+if [[ -n "$last_subject" ]]; then
+    subjects=("$last_subject" "${subjects[@]}")
+fi
+
+local subject=$(printf '%s\n' "${subjects[@]}" | awk '!seen[$0]++' | fzf --prompt="Select NATS subject: ")
+if [[ -z "$subject" ]]; then
+    echo "No subject selected. Exiting."
+    return 1
+fi
+
+# Если выбрана опция добавления новой темы
+if [[ "$subject" == "+ Add new subject" ]]; then
+    echo "Enter new subject:"
+    read new_subject
+    if [[ -n "$new_subject" ]]; then
+        echo "$new_subject" >> "$subjects_file"
+        subject="$new_subject"
+        echo "New subject added: $subject"
+    else
+        echo "No subject entered. Exiting."
+        return 1
+    fi
+fi
+
+# Определяем начальную директорию для поиска файлов
+local search_dir="."
+if [[ -n "$last_file" && -d "$(dirname "$last_file")" ]]; then
+    search_dir=$(dirname "$last_file")
+fi
+
+local file_list=$(find "$search_dir" -name '*.json')
+
+# Добавляем последний файл в начало списка, если он существует
+if [[ -n "$last_file" && -f "$last_file" ]]; then
+    file_list=$(echo -e "$last_file\n$file_list" | awk '!seen[$0]++')
+fi
+
+local file=$(echo "$file_list" | fzf --prompt="Select JSON file: " --preview 'cat {}')
+if [[ -z "$file" ]]; then
+    echo "No file selected. Exiting."
+    return 1
+fi
+
+cat "$file" | nats pub "$subject" --count=1
+echo "Published $file to $subject"
+
+# Сохранение выбранных значений
+echo "$subject" > "$config_file"
+echo "$file" >> "$config_file"

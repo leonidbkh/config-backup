@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+brew install neovim
+nvimfolder="$CONFIGDIR/nvim"
+
+
+# execute "rm -rf $nvimfolder"
+#
+# # NvChad
+# execute "git clone https://github.com/NvChad/starter $nvimfolder"
+# execute "rm -rf $nvimfolder/.git"
+
+# Copy config
+# execute "cp -R $SCRIPTDIR/config/nvim/lua $nvimfolder/"
+# execute "cp -R $SCRIPTDIR/config/nvim/init.lua $nvimfolder/"
+# execute "cp -R $SCRIPTDIR/config/nvim/.stylua.toml $nvimfolder/"
+

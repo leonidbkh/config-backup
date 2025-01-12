@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+
+# Массивы для групп и путей
+groups=("Other" "Echo" "Natcar" "Trading")
+paths=("$HOME/Developer" "$HOME/Developer/Echo" "$HOME/Natcar" "$HOME/Natcar/trading")
+
+# Передаем список групп в fzf и получаем выбор
+selected_group=$(printf "%s\n" "${groups[@]}" | fzf)
+if [[ -z $selected_group ]]; then
+  exit 0
+fi
+
+# Находим индекс выбранной группы и соответствующий путь
+folder_path=""
+for i in "${!groups[@]}"; do
+    if [[ "${groups[$i]}" == "$selected_group" ]]; then
+        folder_path="${paths[$i]}"
+        break
+    fi
+done
+
+selected=$(find $folder_path -mindepth 1 -maxdepth 1 -type d | fzf)
+
+if [[ -z "$selected" ]]; then
+  exit 0
+fi
+
+selected_name=$(basename $selected | tr ":,. " "____")
+
+switch_to() {
+  if [ $TERM_PROGRAM = "tmux" ]; then
+    tmux switch -t $selected_name
+  else
+    tmux attach -t $selected_name
+  fi
+}
+
+if tmux has-session -t=$selected_name 2> /dev/null; then
+  switch_to
+else
+  tmux new-session -ds $selected_name -c $selected
+  tmux send-keys -t $selected_name C-z "ready-tmux" Enter
+  switch_to
+fi
+
+

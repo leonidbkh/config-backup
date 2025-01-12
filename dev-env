@@ -1,0 +1,62 @@
+#! /usr/bin/env bash
+
+export SCRIPTDIR=$(cd $(dirname "${BASH_SOURCE[0]}") && pwd)
+export CONFIGDIR="$HOME/.config"
+
+export DRY_RUN="0"
+filter=""
+
+while [[ $# > 0 ]]; do
+  if [[ $1 == "--dry" ]]; then
+    DRY_RUN="1"
+  else
+    filter="$1"
+  fi
+  shift
+done
+
+log() {
+  if [[ $DRY_RUN == "1" ]]; then
+    echo "[DRY_RUN]: $@"
+  else
+    echo "$@"
+  fi
+}
+export -f log
+
+execute() {
+  log execute $@
+  if [[ $DRY_RUN == "1" ]]; then
+    return
+  fi
+  "$@"
+}
+export -f execute
+
+log "---------- dev-env ----------"
+
+copy_dir() {
+  pushd $1 > /dev/null
+  to=$2
+  # TODO: ADD PATH CHECK AND mkdir $to
+  dirs=$(find . -mindepth 1 -maxdepth 1 -type d)
+
+  for dir in $dirs; do
+    execute rm -rf  $to/$dir
+    execute cp -R $dir $to/$dir
+  done
+  popd > /dev/null
+
+}
+copy_file() {
+  from=$1
+  to=$2
+  name=$(basename $from)
+  execute rm $to/$name
+  execute cp $from $to/$name
+}
+
+copy_dir ".config" "$CONFIGDIR"
+copy_dir ".local" $HOME/.local
+copy_file ".zshrc" $HOME
+
