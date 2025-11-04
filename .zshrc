@@ -90,7 +90,6 @@ fi
 
 alias vim=nvim
 alias vi=nvim
-alias aider="python -m aider"
 alias ll='eza --icons=always -1 --group-directories-first'
 alias fvim='vim $(fzf --preview "bat --style=numbers --color=always --line-range :500 {}")'
 
