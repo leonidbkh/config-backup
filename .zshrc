@@ -44,11 +44,6 @@ addToPath "$HOME/.cargo/bin"
 addToPath $PATH:$GOBIN
 addToPath "$HOME/.local/scripts"
 
-
-export NEXUS_HOST=harbor.natcar.ru
-export NEXUS_PYPI_USER=pypi
-export NEXUS_PYPI_PASSWORD=A3zgB7ceDnRubwj6C42XsNfpQMPUWkSx
-#
 export SSL_CERT_FILE=~/Natcar/_cert/root-natcar-ca.crt
 
 export KUBECONFIG=$HOME/.kube/config
