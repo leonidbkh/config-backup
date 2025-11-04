@@ -44,13 +44,6 @@ addToPath "$HOME/.cargo/bin"
 addToPath $PATH:$GOBIN
 addToPath "$HOME/.local/scripts"
 
-
-export NEXUS_HOST=harbor.natcar.ru
-export NEXUS_PYPI_USER=pypi
-export NEXUS_PYPI_PASSWORD=A3zgB7ceDnRubwj6C42XsNfpQMPUWkSx
-#
-export SSL_CERT_FILE=~/Natcar/_cert/root-natcar-ca.crt
-
 export KUBECONFIG=$HOME/.kube/config
 
 export PIPENV_VENV_IN_PROJECT=True
@@ -95,15 +88,8 @@ fi
 # users are encouraged to define aliases within the ZSH_CUSTOM folder.
 # For a full list of active aliases, run `alias`.
 
-set_jira_sprint() {
-  export JIRA_CURRENT_SPRINT=$1
-}
-
 alias vim=nvim
 alias vi=nvim
-alias aider="python -m aider"
-alias jira-sp='jira sprint list $JIRA_CURRENT_SPRINT -q "type=\"Задача на разработку (BACK)\" or type=\"Баг разработка\"" --order-by status'
-alias jira-epics='jira epic list -q "Команда=\"Ignition Team\" and status != Выполнено"'
 alias ll='eza --icons=always -1 --group-directories-first'
 alias fvim='vim $(fzf --preview "bat --style=numbers --color=always --line-range :500 {}")'
 
@@ -130,15 +116,6 @@ load-ai() {
   load-token ANTHROPIC_API_KEY anthropic/api-key
   load-token OPENAI_API_KEY openai/api-key
 }
-
-load-natcar() {
-  load-token NATCAR_GITLAB_TOKEN natcar/gitlab-api-key
-  load-token JIRA_API_TOKEN natcar/jira-api-key
-  load-token NEXUS_PYPI_PASSWORD natcar/nexus-pypi-password
-  export JIRA_USER='lbakhmetyev@natcar.ru'
-  export JIRA_DOMAIN='https://jira.natcar.ru/'
-}
-
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
